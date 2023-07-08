@@ -1,0 +1,25 @@
+html {
+  font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+.navbar {
+  display: flex;
+  background-color: #ccc;
+  margin-bottom: 1em;
+}
+
+.navbar > * {
+  padding: 0.5em;
+}
+
+.calendar-container {
+  width: 100%;
+  height: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.fc .fc-media-screen .fc-direction-ltr .fc-theme-standard {
+  height: 450px !important;
+}
