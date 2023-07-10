@@ -23,3 +23,7 @@ html {
 .fc .fc-media-screen .fc-direction-ltr .fc-theme-standard {
   height: 450px !important;
 }
+
+.completed-event .fc-event-title {
+  text-decoration: line-through;
+}

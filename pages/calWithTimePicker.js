@@ -91,27 +91,24 @@ function CalendarWithTime() {
       {
         title: "Mahi day",
         start: "2023-07-07",
-        backgroundColor: "red",
+        // backgroundColor: "red",
         content: "Mahi day",
-      },
-      {
-        title: "Thala day",
-        start: "2023-07-07",
-        backgroundColor: "green",
-        content: "Mahi day",
+        completed: true,
       },
       {
         title: "CSK",
         start: "2023-07-07",
-        backgroundColor: "yellow",
+        // backgroundColor: "yellow",
         content: "Mahi day",
+        completed: false,
       },
       {
         title: "SAWAN_RANGE",
         start: "2023-08-05",
         end: "2023-08-15",
-        backgroundColor: "blue",
+        // backgroundColor: "blue",
         content: "SAWAN_RANGE",
+        completed: false,
       },
     ];
     setEvents(fetchedEvents);
@@ -149,7 +146,7 @@ function CalendarWithTime() {
       isSameDay(event.start, arg.date)
     );
 
-    if (eventsOnDate.length <= 2) {
+    if (eventsOnDate.length < 3) {
       // Render default popover content if there are 2 or fewer events
       return (
         <div>
@@ -187,7 +184,6 @@ function CalendarWithTime() {
     }
   };
 
-  
   console.log("userEvents", events);
   return (
     <Layout>
@@ -208,8 +204,6 @@ function CalendarWithTime() {
           contentHeight={395}
           // dateClick={handleDateClick}
           datesSet={handleDatesSet}
-          // viewDidMount={handleViewDidMount}
-          // viewWillUnmount={handleViewWillUnmount}
           views={{
             dayGridYear: {
               type: "dayGrid",
@@ -218,6 +212,9 @@ function CalendarWithTime() {
           }}
           dayPopoverContent={dayPopoverContent}
           dayMaxEvents={true}
+          eventClassNames={({ event }) => {
+            return event.extendedProps.completed ? "completed-event" : "";
+          }}
         />
         <Modal
           open={showModal}
