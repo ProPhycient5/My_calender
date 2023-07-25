@@ -6,6 +6,7 @@ import multiMonthPlugin from "@fullcalendar/multimonth"; //npm i @fullcalendar/m
 import Layout from "@/components/layout";
 import { useEffect, useState } from "react";
 import { Modal, TimePicker, DatePicker } from "antd";
+import { Tooltip } from "antd";
 import moment from "moment";
 
 function CalendarWithTime() {
@@ -16,6 +17,9 @@ function CalendarWithTime() {
   const [events, setEvents] = useState([]);
   const [showDate, setShowDate] = useState(false);
   const [selectedToDate, setSelectedToDate] = useState(null);
+
+  const [hoveredEventTitle, setHoveredEventTitle] = useState("");
+  const [tooltipPosition, setTooltipPosition] = useState({ left: 0, top: 0 });
 
   // console.log('selectedToDate', selectedToDate)
   // console.log('selectedFromDate', selectedDate)
@@ -89,7 +93,7 @@ function CalendarWithTime() {
     // Fetch events from an API or any other data source
     const fetchedEvents = [
       {
-        title: "Mahi day",
+        title: "Mahi day celebration",
         start: "2023-07-07",
         // backgroundColor: "red",
         content: "Mahi day",
@@ -100,6 +104,20 @@ function CalendarWithTime() {
         start: "2023-07-07",
         // backgroundColor: "yellow",
         content: "Mahi day",
+        completed: false,
+      },
+      {
+        title: "Solar work of installation to roof",
+        start: "2023-07-09",
+        // backgroundColor: "yellow",
+        content: "Hi, I m content",
+        completed: false,
+      },
+      {
+        title: "Mid-day work of installation to roof",
+        start: "2023-07-15",
+        // backgroundColor: "yellow",
+        content: "Hi, I m content",
         completed: false,
       },
       {
@@ -125,13 +143,13 @@ function CalendarWithTime() {
     console.log("View_title", view.title); //-----> this is one, I needed so that I can know that date or date range
   };
 
-  const handleViewDidMount = (arg) => {
-    console.log("Current_view", arg.view.title);
-  };
+  // const handleViewDidMount = (arg) => {
+  //   console.log("Current_view", arg.view.title);
+  // };
 
-  const handleViewWillUnmount = (arg) => {
-    console.log("Previous_view", arg.view.title);
-  };
+  // const handleViewWillUnmount = (arg) => {
+  //   console.log("Previous_view", arg.view.title);
+  // };
 
   const isSameDay = (date1, date2) => {
     return (
@@ -184,6 +202,20 @@ function CalendarWithTime() {
     }
   };
 
+  const handleEventMouseEnter = (event) => {
+    console.log("event_title", event);
+    setHoveredEventTitle(event.event.title);
+
+    // Calculate the position of the Tooltip based on the mouse position
+    const tooltipLeft = event.jsEvent.clientX - 40; // Adjust the values as per your needs
+    const tooltipTop = event.jsEvent.clientY - 40; // Adjust the values as per your needs
+    setTooltipPosition({ left: tooltipLeft, top: tooltipTop });
+  };
+
+  const handleEventMouseLeave = () => {
+    setHoveredEventTitle("");
+  };
+
   console.log("userEvents", events);
   return (
     <Layout>
@@ -215,7 +247,24 @@ function CalendarWithTime() {
           eventClassNames={({ event }) => {
             return event.extendedProps.completed ? "completed-event" : "";
           }}
+          eventMouseEnter={handleEventMouseEnter}
+          eventMouseLeave={handleEventMouseLeave}
         />
+     
+        {hoveredEventTitle && (
+          <div
+            style={{
+              left: tooltipPosition.left,
+              top: tooltipPosition.top,
+              position: "fixed",
+              zIndex: 9999,
+              backgroundColor: "greenyellow"
+            }}
+          >
+            {hoveredEventTitle}
+          </div>
+        )}
+
         <Modal
           open={showModal}
           onCancel={handleModalCancel}
