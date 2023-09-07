@@ -224,28 +224,21 @@ function CalendarWithTime() {
   };
 
   const currentYear = moment().format("YYYY");
-  const currentMonth = moment().format("YYYY-MM");
+  const onlyMonth = moment().format("MM");
 
   const [selectedYear, setSelectedYear] = useState(currentYear); // Initial year
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedMonth, setSelectedMonth] = useState(onlyMonth);
 
   // Function to handle date picker change
-  const handleDateChange = (date, dateString) => {
+  const handleMonthSelect = (date, dateString) => {
     if (date) {
-      console.log("dateString", dateString);
-      setSelectedMonth(dateString); // Update state with the selected month
+      const optedMonth = date.format("MM");
+      console.log("optedMonth", optedMonth);
+      setSelectedMonth(optedMonth); // Update state with the selected month
     } else {
       // Date is cleared (not allowed due to allowClear={false})
       setSelectedMonth(null); // Clear the selected month in the state
     }
-  };
-
-  // Function to set the initial date based on the selected year
-  const getInitialDate = () => {
-    if (calObj["view"]?.type === "multiMonthYear")
-      return `${selectedYear}-01-01`;
-    else if (calObj["view"]?.type === "dayGridMonth")
-     return `${selectedMonth}-01`
   };
 
   // Function to handle the year selection from the Ant Design DatePicker
@@ -253,6 +246,14 @@ function CalendarWithTime() {
     const selectedYear = date.format("YYYY");
     console.log("selectedYear", selectedYear);
     setSelectedYear(selectedYear);
+  };
+
+  // Function to set the initial date based on the selected year
+  const getInitialDate = () => {
+    if (calObj["view"]?.type === "multiMonthYear")
+      return `${selectedYear}-01-01`;
+    else if (calObj["view"]?.type === "dayGridMonth")
+      return `${selectedYear}-${selectedMonth}-01`;
   };
 
   useEffect(() => {
@@ -276,12 +277,12 @@ function CalendarWithTime() {
           <DatePicker
             picker="month"
             allowClear={false}
-            onChange={handleDateChange}
+            onChange={handleMonthSelect}
           />
         )}
 
         <FullCalendar
-          key={rerender}
+          key={rerender ? "1" : "0"}
           plugins={[
             dayGridPlugin,
             timeGridPlugin,
