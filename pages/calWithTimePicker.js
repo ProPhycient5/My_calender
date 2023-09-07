@@ -20,10 +20,9 @@ function CalendarWithTime() {
 
   const [hoveredEventTitle, setHoveredEventTitle] = useState("");
   const [tooltipPosition, setTooltipPosition] = useState({ left: 0, top: 0 });
+  const [calObj, setCalObj] = useState({});
 
-  // console.log('selectedToDate', selectedToDate)
-  // console.log('selectedFromDate', selectedDate)
-  console.log("startTime", startTime);
+  const [rerender, setRerender] = useState(false);
 
   const handleTimeChange = (time, field) => {
     if (field === "startTime") {
@@ -107,6 +106,13 @@ function CalendarWithTime() {
         completed: false,
       },
       {
+        title: "Improvisation of code",
+        start: "2023-07-07",
+        // backgroundColor: "yellow",
+        content: "Mahi day",
+        completed: false,
+      },
+      {
         title: "Solar work of installation to roof",
         start: "2023-07-09",
         // backgroundColor: "yellow",
@@ -137,6 +143,7 @@ function CalendarWithTime() {
   };
 
   const handleDatesSet = (arg) => {
+    setCalObj(arg);
     console.log("arg_", arg);
     const { view, start, end } = arg;
     console.log("view_type", view.type); //date type monthView, weekView, dayView
@@ -164,7 +171,9 @@ function CalendarWithTime() {
       isSameDay(event.start, arg.date)
     );
 
-    if (eventsOnDate.length < 3) {
+    console.log("eventsOnDate", eventsOnDate);
+
+    if (eventsOnDate.length <= 2) {
       // Render default popover content if there are 2 or fewer events
       return (
         <div>
@@ -203,12 +212,10 @@ function CalendarWithTime() {
   };
 
   const handleEventMouseEnter = (event) => {
-    console.log("event_title", event);
+    // console.log("event_title", event);
     setHoveredEventTitle(event.event.title);
-
-    // Calculate the position of the Tooltip based on the mouse position
     const tooltipLeft = event.jsEvent.clientX - 40; // Adjust the values as per your needs
-    const tooltipTop = event.jsEvent.clientY - 40; // Adjust the values as per your needs
+    const tooltipTop = event.jsEvent.clientY - 60; // Adjust the values as per your needs
     setTooltipPosition({ left: tooltipLeft, top: tooltipTop });
   };
 
@@ -216,12 +223,65 @@ function CalendarWithTime() {
     setHoveredEventTitle("");
   };
 
-  console.log("userEvents", events);
+  const currentYear = moment().format("YYYY");
+  const currentMonth = moment().format("YYYY-MM");
+
+  const [selectedYear, setSelectedYear] = useState(currentYear); // Initial year
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
+  // Function to handle date picker change
+  const handleDateChange = (date, dateString) => {
+    if (date) {
+      console.log("dateString", dateString);
+      setSelectedMonth(dateString); // Update state with the selected month
+    } else {
+      // Date is cleared (not allowed due to allowClear={false})
+      setSelectedMonth(null); // Clear the selected month in the state
+    }
+  };
+
+  // Function to set the initial date based on the selected year
+  const getInitialDate = () => {
+    if (calObj["view"]?.type === "multiMonthYear")
+      return `${selectedYear}-01-01`;
+    else if (calObj["view"]?.type === "dayGridMonth")
+     return `${selectedMonth}-01`
+  };
+
+  // Function to handle the year selection from the Ant Design DatePicker
+  const handleYearSelect = (date) => {
+    const selectedYear = date.format("YYYY");
+    console.log("selectedYear", selectedYear);
+    setSelectedYear(selectedYear);
+  };
+
+  useEffect(() => {
+    setRerender(!rerender);
+  }, [selectedMonth, selectedYear]);
+
   return (
     <Layout>
       <div className="calendar-container">
         <button onClick={handleAddEvent}>Add Eventsawa</button>
+
+        {calObj["view"]?.type === "multiMonthYear" && (
+          <DatePicker
+            picker="year"
+            allowClear={false}
+            onChange={handleYearSelect}
+          />
+        )}
+
+        {calObj["view"]?.type === "dayGridMonth" && (
+          <DatePicker
+            picker="month"
+            allowClear={false}
+            onChange={handleDateChange}
+          />
+        )}
+
         <FullCalendar
+          key={rerender}
           plugins={[
             dayGridPlugin,
             timeGridPlugin,
@@ -231,6 +291,14 @@ function CalendarWithTime() {
           initialView="dayGridMonth"
           headerToolbar={{
             center: "dayGridMonth,timeGridWeek,timeGridDay,multiMonthYear",
+          }}
+          // initialDate={"2030-01-01"}
+          initialDate={getInitialDate()}
+          customButtons={{
+            customButton: {
+              text: "Select Year",
+              click: handleYearSelect,
+            },
           }}
           events={events}
           contentHeight={395}
@@ -250,7 +318,7 @@ function CalendarWithTime() {
           eventMouseEnter={handleEventMouseEnter}
           eventMouseLeave={handleEventMouseLeave}
         />
-     
+
         {hoveredEventTitle && (
           <div
             style={{
@@ -258,7 +326,10 @@ function CalendarWithTime() {
               top: tooltipPosition.top,
               position: "fixed",
               zIndex: 9999,
-              backgroundColor: "greenyellow"
+              backgroundColor: "#474747",
+              padding: "10px",
+              color: "white",
+              borderRadius: "6px",
             }}
           >
             {hoveredEventTitle}
