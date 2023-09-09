@@ -6,10 +6,14 @@ import multiMonthPlugin from "@fullcalendar/multimonth"; //npm i @fullcalendar/m
 import Layout from "@/components/layout";
 import { useEffect, useState } from "react";
 import { Modal, TimePicker, DatePicker } from "antd";
-import { Tooltip } from "antd";
 import moment from "moment";
 
 function CalendarWithTime() {
+  const currentYear = moment().format("YYYY");
+  const onlyMonth = moment().format("MM");
+  const currentMonthYear = moment().format("YYYY-MM");
+  const currentDate = moment().format("YYYY-MM-DD");
+
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -17,11 +21,12 @@ function CalendarWithTime() {
   const [events, setEvents] = useState([]);
   const [showDate, setShowDate] = useState(false);
   const [selectedToDate, setSelectedToDate] = useState(null);
-
   const [hoveredEventTitle, setHoveredEventTitle] = useState("");
   const [tooltipPosition, setTooltipPosition] = useState({ left: 0, top: 0 });
   const [calObj, setCalObj] = useState({});
-
+  const [selectedMY, setSelectedMY] = useState(currentMonthYear);
+  const [selectedYear, setSelectedYear] = useState(currentYear); // Initial year
+  const [selectedMonth, setSelectedMonth] = useState(onlyMonth);
   const [rerender, setRerender] = useState(false);
 
   const handleTimeChange = (time, field) => {
@@ -223,18 +228,13 @@ function CalendarWithTime() {
     setHoveredEventTitle("");
   };
 
-  const currentYear = moment().format("YYYY");
-  const onlyMonth = moment().format("MM");
-
-  const [selectedYear, setSelectedYear] = useState(currentYear); // Initial year
-  const [selectedMonth, setSelectedMonth] = useState(onlyMonth);
-
   // Function to handle date picker change
   const handleMonthSelect = (date, dateString) => {
     if (date) {
       const optedMonth = date.format("MM");
-      console.log("optedMonth", optedMonth);
+      const optedMY = date.format("YYYY-MM");
       setSelectedMonth(optedMonth); // Update state with the selected month
+      setSelectedMY(optedMY);
     } else {
       // Date is cleared (not allowed due to allowClear={false})
       setSelectedMonth(null); // Clear the selected month in the state
@@ -246,14 +246,18 @@ function CalendarWithTime() {
     const selectedYear = date.format("YYYY");
     console.log("selectedYear", selectedYear);
     setSelectedYear(selectedYear);
+    setSelectedMonth("01");
   };
 
   // Function to set the initial date based on the selected year
   const getInitialDate = () => {
-    if (calObj["view"]?.type === "multiMonthYear")
+    if (calObj["view"]?.type === "multiMonthYear") {
       return `${selectedYear}-01-01`;
-    else if (calObj["view"]?.type === "dayGridMonth")
-      return `${selectedYear}-${selectedMonth}-01`;
+    } else if (calObj["view"]?.type === "dayGridMonth") {
+      if (selectedMY === currentMonthYear) {
+        return currentDate;
+      } else return `${selectedYear}-${selectedMonth}-01`;
+    }
   };
 
   useEffect(() => {
@@ -270,6 +274,7 @@ function CalendarWithTime() {
             picker="year"
             allowClear={false}
             onChange={handleYearSelect}
+            // defaultValue={moment(selectedYear, "YYYY")}
           />
         )}
 
@@ -278,6 +283,7 @@ function CalendarWithTime() {
             picker="month"
             allowClear={false}
             onChange={handleMonthSelect}
+            // defaultValue={moment(`${selectedYear}-${selectedMonth}`, "YYYY-MM")}
           />
         )}
 
